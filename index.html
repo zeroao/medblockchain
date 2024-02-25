@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Records Dapp</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.3.5/dist/web3.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        window.addEventListener('load', async () => {
+            if (window.ethereum) {
+                window.web3 = new Web3(window.ethereum);
+                await window.ethereum.enable();
+            } else if (window.web3) {
+                window.web3 = new Web3(window.web3.currentProvider);
+            } else {
+                console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+            }
+
+            const abi = [
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "_doctor",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "addDoctor",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "_patient",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "string",
+                            "name": "_name",
+                            "type": "string"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "_age",
+                            "type": "uint256"
+                        },
+                        {
+                            "internalType": "string",
+                            "name": "_diagnosis",
+                            "type": "string"
+                        }
+                    ],
+                    "name": "addRecord",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "patient",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "doctor",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "string",
+                            "name": "diagnosis",
+                            "type": "string"
+                        }
+                    ],
+                    "name": "DiagnosisAdded",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "doctor",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "DoctorAdded",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "doctor",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "DoctorRemoved",
+                    "type": "event"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "_doctor",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "removeDoctor",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "doctors",
+                    "outputs": [
+                        {
+                            "internalType": "bool",
+                            "name": "",
+                            "type": "bool"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getRecords",
+                    "outputs": [
+                        {
+                            "components": [
+                                {
+                                    "internalType": "string",
+                                    "name": "name",
+                                    "type": "string"
+                                },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "age",
+                                    "type": "uint256"
+                                },
+                                {
+                                    "internalType": "string",
+                                    "name": "diagnosis",
+                                    "type": "string"
+                                },
+                                {
+                                    "internalType": "address",
+                                    "name": "doctor",
+                                    "type": "address"
+                                },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "timestamp",
+                                    "type": "uint256"
+                                }
+                            ],
+                            "internalType": "struct MedicalRecords.Record[]",
+                            "name": "",
+                            "type": "tuple[]"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "patientRecords",
+                    "outputs": [
+                        {
+                            "internalType": "string",
+                            "name": "name",
+                            "type": "string"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "age",
+                            "type": "uint256"
+                        },
+                        {
+                            "internalType": "string",
+                            "name": "diagnosis",
+                            "type": "string"
+                        },
+                        {
+                            "internalType": "address",
+                            "name": "doctor",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "timestamp",
+                            "type": "uint256"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                }
+            ]
+
+            const address = '0x036d99e9d1dc9e168a6692670dbae25675fe5e3c'; // Deployed contract address
+
+            const contract = new web3.eth.Contract(abi, address);
+
+            const addDoctorButton = document.getElementById('addDoctorButton');
+            const addDoctorMessage = document.getElementById('addDoctorMessage');
+            const removeDoctorButton = document.getElementById('removeDoctorButton');
+            const removeDoctorMessage = document.getElementById('removeDoctorMessage');
+            const checkDoctorButton = document.getElementById('checkDoctorButton');
+            const checkDoctorMessage = document.getElementById('checkDoctorMessage');
+            const addRecordButton = document.getElementById('addRecordButton');
+            const getRecordsButton = document.getElementById('getRecordsButton');
+            const recordsOutput = document.getElementById('recordsOutput');
+            const doctorAddressInput = document.getElementById('doctorAddress');
+            const selectedAddressField = document.getElementById('selectedAddress');
+
+            // Function to update selected address field
+            function updateSelectedAddress() {
+                if (window.ethereum.selectedAddress) {
+                    selectedAddressField.innerText = `Your Address: ${window.ethereum.selectedAddress}`;
+                } else {
+                    selectedAddressField.innerText = 'No address selected in MetaMask';
+                }
+            }
+
+            // Call updateSelectedAddress initially and whenever the account changes in MetaMask
+            updateSelectedAddress();
+            window.ethereum.on('accountsChanged', updateSelectedAddress);
+
+            addDoctorButton.addEventListener('click', async () => {
+                try {
+                    const doctorAddress = doctorAddressInput.value;
+                    if (!doctorAddress) {
+                        alert('Doctor address is required.');
+                        return;
+                    }
+                    await contract.methods.addDoctor(doctorAddress).send({ from: window.ethereum.selectedAddress });
+                    addDoctorMessage.textContent = 'Doctor added successfully!';
+                    addDoctorMessage.style.color = 'green';
+                } catch (error) {
+                    console.error(error);
+                    addDoctorMessage.textContent = 'Failed to add doctor:', error;
+                    addDoctorMessage.style.color = 'red';
+                }
+            });
+
+            removeDoctorButton.addEventListener('click', async () => {
+                try {
+                    const doctorAddress = doctorAddressInput.value;
+                    if (!doctorAddress) {
+                        alert('Doctor address is required.');
+                        return;
+                    }
+                    await contract.methods.removeDoctor(doctorAddress).send({ from: window.ethereum.selectedAddress });
+                    removeDoctorMessage.textContent = 'Doctor removed successfully!';
+                    removeDoctorMessage.style.color = 'green';
+                } catch (error) {
+                    console.error(error);
+                    removeDoctorMessage.textContent = 'Failed to remove doctor: ', error;
+                    removeDoctorMessage.style.color = 'red';
+                }
+            });
+
+            checkDoctorButton.addEventListener('click', async () => {
+                const doctorAddress = doctorAddressInput.value;
+                if (!doctorAddress) {
+                    alert('Doctor address is required.');
+                    return;
+                }
+                try {
+                    const isDoctor = await contract.methods.doctors(doctorAddress).call();
+                    if (isDoctor) {
+                        checkDoctorMessage.textContent = `Address ${doctorAddress} is a registered doctor.`;
+                        checkDoctorMessage.style.color = 'green';
+                    } else {
+                        checkDoctorMessage.textContent = `Address ${doctorAddress} is not a registered doctor.`;
+                        checkDoctorMessage.style.color = 'red';
+                    }
+                } catch (error) {
+                    console.error("Error checking doctor status:", error);
+                    checkDoctorMessage.textContent = `Failed to check doctor status: ${error.message}`;
+                    checkDoctorMessage.style.color = 'red';
+                }
+            });
+
+            addRecordButton.addEventListener('click', async () => {
+                try {
+                    const patientAddress = document.getElementById('patientAddress').value;
+                    const name = document.getElementById('name').value;
+                    const age = parseInt(document.getElementById('age').value);
+                    const diagnosis = document.getElementById('diagnosis').value;
+                    if (!patientAddress || !name || !age || !diagnosis) {
+                        alert('Please fill out all the fields');
+                        return;
+                    }
+                    await contract.methods.addRecord(patientAddress, name, age, diagnosis).send({ from: window.ethereum.selectedAddress });
+                    alert('Diagnosis added successfully!');
+                } catch (error) {
+                    console.error(error);
+                    alert('Failed to add diagnosis:', error);
+                }
+            });
+
+            contract.events.DiagnosisAdded({ fromBlock: 0 }, (error, event) => {
+                if (error) {
+                    console.error("Error processing event:", error);
+                    return;
+                }
+                const { patient, doctor, diagnosis } = event.returnValues;
+                console.log(`Diagnosis added for patient ${patient} by doctor ${doctor}: ${diagnosis}`);
+                alert('Diagnosis added successfully!');
+            });
+
+            getRecordsButton.addEventListener('click', async () => {
+                try {
+                    const records = await contract.methods.getRecords().call({ from: window.ethereum.selectedAddress });
+                    console.log(records);
+                    if (records.length === 0) {
+                        recordsOutput.textContent = "No records found.";
+                    } else {
+                        recordsOutput.textContent = ""; // Clear previous records
+                        records.forEach(record => {
+                            const { name, age, diagnosis, doctor, timestamp } = record;
+                            const formattedTimestamp = new Date(timestamp * 1000).toLocaleString();
+                            const row = `
+                                <tr>
+                                    <td>${name}</td>
+                                    <td>${age}</td>
+                                    <td>${diagnosis}</td>
+                                    <td>${doctor}</td>
+                                    <td>${formattedTimestamp}</td>
+                                </tr>`;
+                            recordsOutput.insertAdjacentHTML('beforeend', row);
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error retrieving records:", error);
+                    recordsOutput.innerHTML = `<tr><td colspan='4'>Failed to retrieve records: ${error.message}</td></tr>`;
+                }
+            });
+
+        });
+
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Medical Records Dapp</h1>
+        <div id="selectedAddress">Your Address: Loading...</div>
+        <hr>
+        <h3>Doctor Management</h3>
+        <input type="text" id="doctorAddress" placeholder="Enter doctor's Ethereum address" required>
+        <button id="checkDoctorButton">Check Doctor</button>
+        <span id="checkDoctorMessage"></span>
+        <button id="addDoctorButton">Add Doctor</button>
+        <span id="addDoctorMessage"></span>
+        <button id="removeDoctorButton">Remove Doctor</button>
+        <span id="removeDoctorMessage"></span>
+        <hr>
+        <h3>Diagnosis</h3>
+        <label for="patientAddress">Patient Address:</label>
+        <input type="text" id="patientAddress" placeholder="Enter patient's Ethereum address" required>
+        <label for="name">Patient Name:</label>
+        <input type="text" id="name" placeholder="Enter patient's name" required>
+        <label for="age">Patient Age:</label>
+        <input type="number" id="age" placeholder="Enter patient's age" required>
+        <label for="diagnosis">Diagnosis:</label>
+        <textarea id="diagnosis" placeholder="Enter diagnosis"></textarea required>
+        <button id="addRecordButton">Add Diagnosis</button>
+        <hr>
+        <h3>Records</h3>
+        <button id="getRecordsButton">Get Records</button>
+        <table id="recordsTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Diagnosis</th>
+                    <th>Doctor</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody id="recordsOutput"></tbody>
+        </table>
+
+    </div>
+</body>
+
+</html>

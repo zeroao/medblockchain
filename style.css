@@ -1,0 +1,110 @@
+body {
+	font-family: Arial, sans-serif;
+	margin: 0;
+	padding: 0;
+	background-color: #f2f2f2;
+}
+
+.container {
+	max-width: 90%; /* Change to a percentage value */
+	margin: 0 auto;
+	padding: 20px;
+	background-color: #fff;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+label {
+	display: block;
+	font-weight: bold;
+}
+
+input[type="text"],
+input[type="number"] {
+	width: 98%;
+	padding: 10px;
+	margin: 10px;
+	border-radius: 5px;
+	border: 1px solid #ccc;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+	outline: none;
+	border-color: #007bff;
+}
+
+button {
+	display: block;
+	width: 20%;
+	padding: 10px;
+	color: #fff;
+	background-color: #007bff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	margin: 10px;
+}
+
+button:hover {
+	background-color: #0056b3;
+}
+
+#selectedAddress {
+	margin-bottom: 20px;
+	font-weight: bold;
+}
+
+#recordOutput {
+	margin-top: 20px;
+}
+
+.record {
+	padding: 10px;
+	margin-bottom: 10px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	background-color: #f9f9f9;
+}
+
+textarea {
+	outline: none;
+	border-color: #007bff;
+}
+
+textarea {
+	font-family: Arial, sans-serif;
+	width: 98%;
+	padding: 10px;
+	margin: 10px;
+	border-radius: 5px;
+	border: 1px solid #ccc;
+}
+
+.record {
+	padding: 10px;
+	margin-bottom: 10px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	background-color: #f9f9f9;
+}
+
+table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+th, td {
+	border: 1px solid #ddd;
+	padding: 8px;
+	text-align: left;
+}
+
+th {
+	background-color: #f2f2f2;
+}
